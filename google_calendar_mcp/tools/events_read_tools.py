@@ -154,6 +154,13 @@ def register_events_read_tools(mcp: FastMCP) -> None:
         page_token: str = Field(default="", description="Pagination token from a previous response's next_page_token to fetch the next page"),
     ) -> EventListResult:
         tlog = ToolLogger(logger, "search_events")
+        if not query.strip():
+            msg = "query must not be empty"
+            tlog.failure("VALIDATION_ERROR", msg)
+            return EventListResult(
+                success=False, statusCode=400, retriable=False,
+                error=ToolError(code="VALIDATION_ERROR", message=msg),
+            )
         if time_min and time_max and time_min >= time_max:
             msg = "time_min must be before time_max"
             tlog.failure("VALIDATION_ERROR", msg)
